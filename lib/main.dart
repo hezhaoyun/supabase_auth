@@ -70,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
       EasyLoading.show(status: 'Loading...');
       await supabase.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: 'cn.chessroad.apps.ichess://login_callback',
+        redirectTo: kIsWeb ? null : 'cn.chessroad.apps.ichess://login_callback',
       );
     } catch (e) {
       _showMessage('Error: $e');
@@ -141,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
           const SizedBox(height: 16),
           if (_userEmail == null) ...[
             ElevatedButton(onPressed: _signInWithGoogle, child: const Text('Sign in with Google')),
-            if (Platform.isIOS || Platform.isMacOS) ...[
+            if (!kIsWeb && (Platform.isIOS || Platform.isMacOS)) ...[
               const SizedBox(height: 16),
               ElevatedButton(onPressed: _signInWithApple, child: const Text('Sign in with Apple')),
             ],
