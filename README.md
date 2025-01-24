@@ -23,7 +23,7 @@ This Demo shows how to use Supabase's Auth service to implement Google and Apple
     - In the configuration page of Google Providers, enable the "Skip nonce checks" option (required for iOS)
     - In the configuration page of Google Providers, record the "Callback URL (for OAuth)" and later add it to the redirect URI of the Google Cloud web client
 - Add Apple in Providers
-    - In the configuration page of Apple Providers, add the client ID of the iOS client
+    - In the configuration page of Apple Providers, add the app's bundle ID as "client ID".
 - Configure the Supabase URL Configuration as follows
     - Set Site URL: http://localhost:4000 (for testing WEB login callback, use the official domain when officially released)
     - Add Callback URLs: `cn.chessroad.apps.ichess://login_callback` (callback DeepLink for universal auth)
