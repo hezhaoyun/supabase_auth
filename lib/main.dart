@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
     title: 'Supabase Auth with Google + Apple',
     theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple), useMaterial3: true),
     home: const MyHomePage(),
+    builder: EasyLoading.init(),
   );
 }
 
@@ -45,22 +47,34 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    supabase.auth.onAuthStateChange.listen((data) => setState(() => _userEmail = data.session?.user.email));
+    supabase.auth.onAuthStateChange.listen((data) {
+      setState(() => _userEmail = data.session?.user.email);
+      EasyLoading.dismiss();
+    });
   }
 
   Future<void> _signInWithGoogle() async {
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS)) {
-      await _googleNativeSignIn();
+      try {
+        EasyLoading.show(status: 'Loading...');
+        await _googleNativeSignIn();
+      } catch (e) {
+        _showMessage('Error: $e');
+        EasyLoading.dismiss();
+      }
+
       return;
     }
 
     try {
+      EasyLoading.show(status: 'Loading...');
       await supabase.auth.signInWithOAuth(
         OAuthProvider.google,
         redirectTo: 'cn.chessroad.apps.ichess://login_callback',
       );
     } catch (e) {
       _showMessage('Error: $e');
+      EasyLoading.dismiss();
     }
   }
 
@@ -89,8 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
     final rawNonce = supabase.auth.generateRawNonce();
     final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
 
-    // add try catch
     try {
+      EasyLoading.show(status: 'Loading...');
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
         nonce: hashedNonce,
@@ -102,6 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
       return supabase.auth.signInWithIdToken(provider: OAuthProvider.apple, idToken: idToken, nonce: rawNonce);
     } catch (e) {
       _showMessage('Error: $e');
+      EasyLoading.dismiss();
     }
 
     return null;
