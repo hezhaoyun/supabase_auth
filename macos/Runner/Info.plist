@@ -43,5 +43,20 @@
 				</array>
 			</dict>
 		</array>
+
+		<!-- Put me in the [my_project]/ios/Runner/Info.plist file -->
+		<!-- Google Sign-in Section -->
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>com.googleusercontent.apps.369752755949-nfbp5g0qev63bq6lcng6el1fbeqg9n4t</string>
+				</array>
+			</dict>
+		</array>
+		<!-- End of the Google Sign-in Section -->
 	</dict>
 </plist>

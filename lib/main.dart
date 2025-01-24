@@ -1,7 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
@@ -45,9 +49,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _signInWithGoogle() async {
-    // if (!kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS)) {
-    //   return;
-    // }
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS)) {
+      await _googleNativeSignIn();
+      return;
+    }
 
     try {
       await supabase.auth.signInWithOAuth(
@@ -59,7 +64,48 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _signInWithApple() {}
+  Future<void> _googleNativeSignIn() async {
+    // Web Client ID that you registered with Google Cloud.
+    const webClientId = '369752755949-mlbr178v2u8o92169a7lbsj064p1cn72.apps.googleusercontent.com';
+
+    // iOS Client ID that you registered with Google Cloud.
+    const iosClientId = '369752755949-nfbp5g0qev63bq6lcng6el1fbeqg9n4t.apps.googleusercontent.com';
+
+    // Google sign in on Android will work without providing the Android Client ID registered on Google Cloud.
+
+    final googleSignIn = GoogleSignIn(clientId: iosClientId, serverClientId: webClientId);
+    final googleUser = await googleSignIn.signIn();
+    final googleAuth = await googleUser?.authentication;
+    final accessToken = googleAuth?.accessToken;
+    final idToken = googleAuth?.idToken;
+
+    if (accessToken == null) throw 'No Access Token found.';
+    if (idToken == null) throw 'No ID Token found.';
+
+    await supabase.auth.signInWithIdToken(provider: OAuthProvider.google, idToken: idToken, accessToken: accessToken);
+  }
+
+  Future<AuthResponse?> _signInWithApple() async {
+    final rawNonce = supabase.auth.generateRawNonce();
+    final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+
+    // add try catch
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
+        nonce: hashedNonce,
+      );
+
+      final idToken = credential.identityToken;
+      if (idToken == null) throw 'Could not find ID Token from generated credential.';
+
+      return supabase.auth.signInWithIdToken(provider: OAuthProvider.apple, idToken: idToken, nonce: rawNonce);
+    } catch (e) {
+      _showMessage('Error: $e');
+    }
+
+    return null;
+  }
 
   Future<void> _signOut() async {
     await supabase.auth.signOut();
@@ -80,8 +126,10 @@ class _MyHomePageState extends State<MyHomePage> {
           const SizedBox(height: 16),
           if (_userEmail == null) ...[
             ElevatedButton(onPressed: _signInWithGoogle, child: const Text('Sign in with Google')),
-            const SizedBox(height: 16),
-            ElevatedButton(onPressed: _signInWithApple, child: const Text('Sign in with Apple')),
+            if (Platform.isIOS || Platform.isMacOS) ...[
+              const SizedBox(height: 16),
+              ElevatedButton(onPressed: _signInWithApple, child: const Text('Sign in with Apple')),
+            ],
           ] else ...[
             ElevatedButton(onPressed: _signOut, child: const Text('Sign out')),
           ],
