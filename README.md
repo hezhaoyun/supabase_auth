@@ -32,7 +32,7 @@ This Demo shows how to use Supabase's Auth service to implement Google and Apple
 
 ### Create a new Flutter project
 
-- flutter create --org com.chessroad.apps.ichess link
+- flutter create --org com.chessroad.apps.ichess login
 
 ### Add dependencies
 
