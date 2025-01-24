@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-    title: 'Flutter Demo',
+    title: 'Supabase Auth with Google + Apple',
     theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple), useMaterial3: true),
     home: const MyHomePage(),
   );
@@ -116,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      title: const Text('Flutter Demo Home Page'),
+      title: const Text('Supabase Auth with Google + Apple'),
     ),
     body: Center(
       child: Column(
