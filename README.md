@@ -1,5 +1,7 @@
-# supabase_auth
-Supabase Auth with Google+Apple, in Flutter.
+# Supabase Auth with Google+Apple, in Flutter.
+这个 Demo 演示了如何使用 Supabase 的 Auth 服务，在 Flutter 中实现 Google 和 Apple 的登录。
+- 在处理 Google 登录时，对于 Android/iOS 和 macOS 的，我们使用了 google_sign_in 插件，体验更好；其它场景使用 web 登录。
+- 对于 Apple 登录，我们对 iOS 和 macOS 应用使用了 sign_in_with_apple 插件，提供原生应用体验。其它场景暂未提供支持。
 
 ## Background Setup
 
